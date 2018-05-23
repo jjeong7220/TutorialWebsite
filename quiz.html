@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Project Quiz</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mustache.js/2.3.0/mustache.min.js"></script>
+    <style>
+        body{
+            background-color: navajowhite;
+        }
+        #myPage .panel {
+            width: 400px;	float: left;	margin: 20px;
+        }
+        #myPage .panel-heading {
+            background-color: forestgreen;		color: white; 
+        }		  
+        #myPage .panel-body {
+            background-color: yellowgreen;		color: black; 
+        }
+        #myPage .panel-footer {
+            background-color: greenyellow;		color: black; 
+        }
+        .mytext{
+            font-size: 12pt;
+            margin-left: 0px;
+        }
+        .jumbotron{
+            background-color: crimson;
+            color: #ff9900
+	    }
+        .titles{
+            background-color:orchid;
+            color:white;
+            text-align:center;
+        }
+        nav{
+            float:left;
+        }
+        .logo{
+            width:90%;
+        }
+        .item{
+            height: 700px;
+            max-width:1200px;
+        }
+        .modal  img{
+            width:100%
+        }
+        left{
+            float: left;
+        }
+        middle{
+            float: center;
+        }
+        right{
+            float: right;
+        }    
+    </style>
+
+    <script type="text/template" id="Template">
+        <div class="panel panel-default">
+            <div class="panel-heading"> Q{{qNum}}:  {{info.Question}} </div>
+            <div class="panel-body"> A. {{info.A}} </div>
+            <div class="panel-body"> B. {{info.B}} </div>
+            <div class="panel-body"> C. {{info.C}} </div>
+            <div class="panel-body"> D. {{info.D}} </div>			
+            <div class="panel-footer">
+                <input type="text" id="{{qKey}}" placeholder="Choice letter">
+            </div>
+        </div>
+    </script>
+
+    <script>
+        var data; 
+
+		function getData(){       	
+			$.getJSON("https://soup-quiz-6470b.firebaseio.com/.json", function(result){
+				data = result;
+                displayQuestions();	
+			});	
+		}
+	
+
+		function displayQuestions(){
+			var build ="";
+			var template = document.getElementById("Template").innerHTML;  
+			var qNumber = 0; 
+		
+			for(var key in data){
+				qNumber++;
+				quesJSON ={
+					"info": data[key], 
+					"qKey": key,
+					"qNum": qNumber
+				}
+				build += Mustache.render(template, quesJSON);     
+			}
+			document.getElementById("quiz").innerHTML = build;							
+		}                    
+		
+
+		function checkAnswers(){
+			var score = 0;
+			var count = 0;
+			for(var key in data){
+                var correctAns = data[key].Answer;
+				var userAns = document.getElementById(key).value;				
+                count++;
+				if (userAns.toUpperCase() == correctAns){
+					score++;
+				}
+                var grd = (score/count * 100).toFixed(0);		
+			}
+			document.getElementById("score").innerHTML = "<h1>You answered " + score + " out of " + count+" questions correctly!<br><br>That's a grade of<b> "+ grd + "%</b></h1>"; 
+		}
+	</script>
+</head>
+<body onload="getData()" id="myPage">
+        <div class="container">
+
+                <div class="jumbotron">
+                        <center><h1>Spring meals - Quiz</h1></center>
+                        <center><p>This is a multiple choice quiz based off of the three soups. Answer them as best as you can.</p> </center>
+                </div>
+                    
+                <nav class="navbar navbar-default">
+                    <div class="container-fluid">
+                        <center><ul class="nav navbar-nav"></center>
+                            <li><a href="index.htm">Home</a></li>
+                            <li><a href="subtopic1.html">Ingredients</a></li>
+                            <li><a href="recipe1.html">Recipes</a></li>
+                            <li><a href="picgallery.html">Gallery</a></li>
+                            <li><a href="quiz.html">Quiz</a></li>
+                        </ul>
+                    </div>
+                </nav>
+                <div class="row">
+                <center><pre><h1 class="titles">ENTER YOUR CHOICES BELOW THEN CLICK "SCORE QUIZ"</h1></pre></center>
+                </div>
+                
+                <div id="quiz"></div>
+                    <button onclick="checkAnswers()" type="button" class="btn btn-success btn-lg">SCORE QUIZ</button>
+                <div id="score"></div>
+
+        </div>
+</body>
+</html>
